@@ -22,13 +22,17 @@ def on_message(client, userdata, msg):
 
 
 
+
 class mqttClient(mqtt.Client):
     def __init__(
         self,
         client_id :str, 
         broker = "broker.hivemq.com",
         port = 1883,
-        clean_session:bool = True
+        clean_session:bool = True,
+        on_connect = on_connect,
+        on_disconnect = on_disconnect,
+        on_message = on_message,
         ):
         super().__init__(client_id, clean_session = clean_session)
         self.on_connect = on_connect  
@@ -41,4 +45,10 @@ class mqttClient(mqtt.Client):
     def send_data(self, data, topic = "VioTrackerLiveFeed"):
         self.publish(topic, str(data))
         
+    def get_data(self, topic = "VioTrackerLiveFeed"):
+        self.loop_start()
+        self.subscribe(topic)
     
+    def stop_receiving(self):
+        self.stop_loop()
+        self.disconnect()
